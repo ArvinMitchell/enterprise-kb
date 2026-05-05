@@ -33,6 +33,32 @@ async def upload_document(file: UploadFile = File(...), db: Session = Depends(ge
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        # Clean up temporary file
         if os.path.exists(file_path):
             os.remove(file_path)
+
+@router.post("/api/documents/sync")
+async def sync_local_directory(path: str, db: Session = Depends(get_db)):
+    """
+    同步本地目录下的文件到知识库
+    """
+    if not os.path.exists(path):
+        raise HTTPException(status_code=400, detail="指定的本地路径不存在")
+    
+    from ..services.document_processor import sync_directory
+    try:
+        count = sync_directory(db, path)
+        return {"status": "success", "processed_files": count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/api/documents/evaluate")
+async def evaluate_recall(n: int = 5, db: Session = Depends(get_db)):
+    """
+    自动生成测试用例并计算 RAG 召回率
+    """
+    from ..services.evaluator import run_recall_evaluation
+    try:
+        result = run_recall_evaluation(db, n)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

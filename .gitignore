@@ -31,9 +31,11 @@ out/
 .DS_Store
 Thumbs.db
 
-# ===== Uploads (user data) =====
+# ===== Uploads & Downloads (user data) =====
 uploads/*
 !uploads/.gitkeep
+downloads/*
+!downloads/.gitkeep
 
 # ===== Docker =====
 docker-compose.override.yml

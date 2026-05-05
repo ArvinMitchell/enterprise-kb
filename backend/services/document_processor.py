@@ -6,7 +6,11 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 
 # Initialize Ollama embeddings
-embeddings = OllamaEmbeddings(model="bge-m3")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
+embeddings = OllamaEmbeddings(
+    model="bge-m3",
+    base_url=OLLAMA_BASE_URL
+)
 
 def extract_pdf_with_tables(file_path: str) -> str:
     """使用 pdfplumber 提取文字并尝试还原表格为 Markdown 格式"""
@@ -61,7 +65,7 @@ def process_and_store_document(db: Session, file_path: str, filename: str, conte
     text_content = text_content.replace("\x00", "")
             
     # 2. Save Document to DB
-    db_doc = Document(filename=filename, content_type=content_type)
+    db_doc = Document(filename=filename, file_path=file_path, content_type=content_type)
     db.add(db_doc)
     db.commit()
     db.refresh(db_doc)
@@ -90,4 +94,25 @@ def process_and_store_document(db: Session, file_path: str, filename: str, conte
         
         db.commit()
 
-    return db_doc
+def sync_directory(db: Session, directory_path: str):
+    """
+    扫描并同步指定目录下的所有支持的文件
+    """
+    supported_extensions = ['.pdf', '.txt', '.md']
+    processed_count = 0
+    
+    for root, dirs, files in os.walk(directory_path):
+        for file in files:
+            ext = os.path.splitext(file)[1].lower()
+            if ext in supported_extensions:
+                file_path = os.path.join(root, file)
+                
+                # 检查文件是否已经存在（通过文件名简单判断，进阶可以用 MD5）
+                existing = db.query(Document).filter(Document.filename == file).first()
+                if not existing:
+                    print(f"--- Syncing new file: {file} ---")
+                    content_type = "application/pdf" if ext == ".pdf" else "text/plain"
+                    process_and_store_document(db, file_path, file, content_type)
+                    processed_count += 1
+    
+    return processed_count

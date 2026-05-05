@@ -1,5 +1,6 @@
 import FileUpload from "@/components/FileUpload";
 import ChatInterface from "@/components/ChatInterface";
+import ResearchPanel from "@/components/ResearchPanel";
 
 export default function Home() {
   return (
@@ -25,18 +26,29 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start w-full">
+          {/* 列 1：文件上传 */}
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold mb-2 ml-4 text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm">1</span>
-              知识库录入
+              上传文件入库
             </h2>
             <FileUpload />
           </div>
-          
+
+          {/* 列 2：批量同步 & 全网调研 */}
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold mb-2 ml-4 text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-sm">2</span>
+              <span className="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-sm">2</span>
+              批量录入 & 全网调研
+            </h2>
+            <ResearchPanel />
+          </div>
+          
+          {/* 列 3：智能问答 */}
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold mb-2 ml-4 text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-sm">3</span>
               智能问答检索
             </h2>
             <ChatInterface />

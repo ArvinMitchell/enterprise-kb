@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from .database import engine, Base
-from .routers import documents, chat
+from .routers import documents, chat, research
 
 # Initialize database tables and vector extension
 with engine.connect() as conn:
@@ -38,3 +38,4 @@ def health_check():
 
 app.include_router(documents.router, tags=["Documents"])
 app.include_router(chat.router, tags=["Chat"])
+app.include_router(research.router, tags=["Research"])
